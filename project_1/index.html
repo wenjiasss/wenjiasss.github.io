@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<head>
+    <title>Project 0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 960px;
+            padding: 20px;
+        }
+        .images img {
+            width: 340px;
+            height: 500px;
+            object-fit: cover;
+        }
+        
+        .dolly-zoom img {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+        }
+
+        .final-results img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <a href="../index.html">
+        <button class="button">Return to home page.</button>
+    </a>
+    
+    <h1>Project Overview</h1>
+    <p>The goal of this project is to take digitized glass plate photographs from Sergei Prokudin-Gorskii and produce a full-color image. Prokudin-Gorskii captured scenes using three separate black-and-white exposures, each with a red, green, or blue filter. The Library of Congress purchased RGB glass plate negatives documenting the final years of the Russian Empire. The collection has recently been digitized and can be viewed online at the library of congress. My task is to align these negatives into a single color photograph.</p>
+
+    <hr>
+
+    <h2>Alignment Process</h2>
+
+    <h3>1. Single Scale Image Process</h3>
+    <p>The first step is to split the single input image into three equal parts representing the blue (B), green (G), and red (R) channels. After the red and blue channels are aligned to the green channel, they are stacked back together. The final output is an RGB image composed of the aligned red channel, the reference green channel, and the aligned blue channel. For small images, we use an exhaustive search between (-15, 16) for both x and y to find the best alignment. For larger tif images, we use the image pyramid approach.</p>
+
+    <h3>2. L2 and NCC Metric</h3>
+    <p>The L2 norm, or Euclidean distance is calculated by taking the square root of the sum of the squared differences taken over the pixel values: sqrt(sum(sum((image1-image2).^2)). In my implementation, NCC performs better than L2. NCC is calculated through a dot product between two normalized image vectors: (image1./||image1|| and image2./||image2||). For each possible x and y shift within (-15, 16), it calculates the NCC between a shifted version of one image and a reference image. The shift that yields the highest NCC score is considered the best alignment.</p>
+    
+    <h3>3. Multi-Scale with Image Pyramid</h3>
+    <p>To handle large and high-resolution tif images efficiently, I used a multi-scale image pyramid approach. I implemented a recursive function that:</p>
+    <ul>
+        <li>Downscales the input images by a factor of 0.5 until a predefined small size.</li>
+        <li>Recursively calls itself on these smaller images to find a coarse alignment.</li>
+        <li>Upscales the aligned, smaller image back to the original size.</li>
+        <li>Refines the alignment on the full-resolution image using a smaller, final search window around the estimated position from the previous level.</li>
+    </ul>
+    <p>This coarse-to-fine approach significantly speeds up the process, making it feasible to align large .tif files, which would otherwise be computationally expensive and time consuming.</p>
+    
+    <h3>4. Cropping</h3>
+    <p>A key refinement that helped me get more precise images is the use of aggressive cropping. Before any alignment, I crop 15% of each channel, leaving behind 85% of the original image. This is done to remove artifacts and lens distortions that are common on the edges of the original photographs. The alignment and final color image are then based on these cropped images.</p>
+
+    <hr>
+
+    <h2>Final Results</h2>
+    <div class="final-results">
+        <p>Here are the final aligned and colorized images:</p>
+        <img src="images/pyramid_results_green_cropped_15%/cathedral+pyramid_cropped.jpg" alt="Final Cathedral Pyramid">
+        <img src="images/pyramid_results_green_cropped_15%/church_cropped.jpg" alt="Final Church">
+        <img src="images/pyramid_results_green_cropped_15%/emir_cropped.jpg" alt="Final Emir">
+        <img src="images/pyramid_results_green_cropped_15%/harvesters_cropped.jpg" alt="Final Harvesters">
+        <img src="images/pyramid_results_green_cropped_15%/icon_cropped.jpg" alt="Final Icon">
+        <img src="images/pyramid_results_green_cropped_15%/italil_cropped.jpg" alt="Final Italil">
+        <img src="images/pyramid_results_green_cropped_15%/lastochikino_cropped.jpg" alt="Final Lastochikino">
+        <img src="images/pyramid_results_green_cropped_15%/lugano_cropped.jpg" alt="Final Lugano">
+        <img src="images/pyramid_results_green_cropped_15%/melons_cropped.jpg" alt="Final Melons">
+        <img src="images/pyramid_results_green_cropped_15%/monastery_cropped.jpg" alt="Final Monastery">
+        <img src="images/pyramid_results_green_cropped_15%/self_portrait_cropped.jpg" alt="Final Self Portrait">
+        <img src="images/pyramid_results_green_cropped_15%/siren_cropped.jpg" alt="Final Siren">
+        <img src="images/pyramid_results_green_cropped_15%/three+generations_cropped.jpg" alt="Final Three Generations">
+        <img src="images/pyramid_results_green_cropped_15%/tobolsk_cropped.jpg" alt="Final Tobolsk">
+    </div>
+
+</body>
+</html>
