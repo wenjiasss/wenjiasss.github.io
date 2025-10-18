@@ -72,8 +72,6 @@
             height: 45%;
             object-fit: cover;
             align-items: center;
-
-
         }
 
         .images img {
@@ -81,8 +79,6 @@
             height: auto;
             object-fit: cover;
             align-items: center;
-
-
         }
         
     </style>
@@ -180,7 +176,7 @@
     </div>
 
     <h3>B.3: Feature Matching</h3>
-    <p> For feature matching, I implemented the nearest-neighbor ratio test. I first computed all pairwise Euclidean distances between the descriptors of image 1 and image 2 using scipy.spatial.distance.cdist. For each descriptor in image 1, I sorted the distances to all descriptors in image 2 to find the closest and second-closest matches. Then I computed the Lowe ratio and if it was below my threshold (0.8), I kept the match. This helps filter out ambiguous matches. I visualized the resulting matches below by plotting lines connecting corresponding marches across the two images. </p>
+    <p> For feature matching, I implemented the nearest-neighbor ratio test. I first computed all pairwise Euclidean distances between the descriptors of image 1 and image 2. For each descriptor in image 1, I sorted the distances to all descriptors in image 2 to find the closest and second-closest matches. Then I computed the Lowe ratio and if it was below my threshold (0.8), I kept the match. This helps filter out ambiguous matches. I visualized the resulting matches below by plotting lines connecting corresponding marches across the two images. </p>
     <div class="images">
         <img src="web/result/b.3.png" alt="1.2">
     </div>
@@ -192,7 +188,7 @@
     <li> Find inliers whose reprojection error is below the threshold (5 pixels).</li>
     <li> Repeat 1000 iterations and keep the H with the most inliers.</li>
     <p> Then I used this to warp one image into the coordinates of the other to stitch them together. Some mask seams were still visible due to brightness differences from when the pictures were taken, but the alignment is more accurate and has less ghosting than the manual alignment.</p>
-    <h4> Manual alignment vs Auto alignment<h4>
+    <h4> Manual Alignment vs Auto Alignment<h4>
     <div class="imagesTwo">
         <img src="web/result/a.4_mainstack.png" alt="1.2">
         <img src="web/result/b.4_main.png" alt="1.2">
