@@ -37,6 +37,7 @@
 
         h1, h2, h3, h4 {
             color: #333;
+            text-align: center;
         }
 
         ul {
@@ -166,24 +167,44 @@
     <h2>Part 2: FEATURE MATCHING for AUTOSTITCHING</h2>
 
     <h3>B.1: Harris Corner Detection</h3>
+    <p> I started by using the provided get_harris_corners function to calculate the harris corners. After getting all the raw Harris corners, I implemented ANMS to keep only the most spatially distinct points. My first attempt used all ~150k corners, which would run out of memory and crash my computer. To fix this, I added a filtering step by increasing the threshold to reduce the number of initial corners before ANMS. </p>
     <div class="imagesTwo">
         <img src="web/result/b.1_harris.png" alt="1.2">
         <img src="web/result/b.1_ANMS.png" alt="1.2">
     </div>
 
     <h3>B.2: Feature Descriptor Extraction</h3>
+    <p> Once I had my set of corners, I extracted feature descriptors centered at each one. For each corner, I made sure that the 40×40 window is within the image bounds and then used cv2.resize to downsample each patch to an 8×8 descriptor. Each descriptor was also bias/gain normalized through subtracting its mean and dividing by its standard deviation. This normalization allows us to match across different images. I visualized some of these descriptors in 8×8 grayscale below. </p>
     <div class="images">
         <img src="web/result/b.2.png" alt="1.2">
     </div>
 
     <h3>B.3: Feature Matching</h3>
+    <p> For feature matching, I implemented the nearest-neighbor ratio test. I first computed all pairwise Euclidean distances between the descriptors of image 1 and image 2 using scipy.spatial.distance.cdist. For each descriptor in image 1, I sorted the distances to all descriptors in image 2 to find the closest and second-closest matches. Then I computed the Lowe ratio and if it was below my threshold (0.8), I kept the match. This helps filter out ambiguous matches. I visualized the resulting matches below by plotting lines connecting corresponding marches across the two images. </p>
     <div class="images">
         <img src="web/result/b.3.png" alt="1.2">
     </div>
 
     <h3>B.4: RANSAC for Robust Homography</h3>
-    <div class="images">
-        <img src="web/result/b.4.png" alt="1.2">
+    <p> I used RANSAC to determine outliers and improve the alignment:</p>
+    <li> Randomly sample 4 correspondences to compute a candidate homography H.</li>
+    <li> Apply H to all points from image 1 and compute the reprojection error to points in image 2.</li>
+    <li> Find inliers whose reprojection error is below the threshold (5 pixels).</li>
+    <li> Repeat 1000 iterations and keep the H with the most inliers.</li>
+    <p> Then I used this to warp one image into the coordinates of the other to stitch them together. Some mask seams were still visible due to brightness differences from when the pictures were taken, but the alignment is more accurate and has less ghosting than the manual alignment.</p>
+    <h4> Manual alignment vs Auto alignment<h4>
+    <div class="imagesTwo">
+        <img src="web/result/a.4_mainstack.png" alt="1.2">
+        <img src="web/result/b.4_main.png" alt="1.2">
+    </div>
+    <div class="imagesTwo">
+        <img src="web/result/a.4_venice.png" alt="1.2">
+        <img src="web/result/b.4_venice.png" alt="1.2">
+    </div>
+
+    <div class="imagesTwo">
+        <img src="web/result/a.4_zeller.png" alt="1.2">
+        <img src="web/result/b.4_zeller.png" alt="1.2">
     </div>
     <hr>
 </body>
