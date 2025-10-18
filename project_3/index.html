@@ -187,7 +187,7 @@
     <li> Apply H to all points from image 1 and compute the reprojection error to points in image 2.</li>
     <li> Find inliers whose reprojection error is below the threshold (5 pixels).</li>
     <li> Repeat 1000 iterations and keep the H with the most inliers.</li>
-    <p> Then I used this to warp one image into the coordinates of the other to stitch them together. Some mask seams were still visible due to brightness differences from when the pictures were taken, but the alignment is more accurate and has less ghosting than the manual alignment.</p>
+    <p> Then I used this to warp one image into the coordinates of the other to stitch them together. Some mask seams were still visible due to brightness differences from when the pictures were taken, but the alignment is more accurate and has less ghosting than the manual alignment. I was also able to get a smoother result through blending the edges of the masks with laplacian stacks.</p>
     <h4> Manual Alignment vs Auto Alignment<h4>
     <div class="imagesTwo">
         <img src="web/result/a.4_mainstack.png" alt="1.2">
