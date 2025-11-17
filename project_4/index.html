@@ -81,6 +81,33 @@
             align-items: center;
         }
         
+        /* --- NEW STYLES ADDED HERE --- */
+        .horizontal-scroll-gallery {
+            display: flex;       /* Lays out items in a single row */
+            overflow-x: auto;  /* Adds a horizontal scrollbar if needed */
+            width: 100%;         /* Takes full width */
+        }
+        
+        .scroll-gallery-item {
+            flex: 0 0 auto;      /* Prevents items from shrinking */
+            text-align: center;  /* Centers the caption */
+            margin: 0;           /* NO white space between items */
+            padding: 0;          /* NO white space between items */
+        }
+
+        .scroll-gallery-item p {
+            font-size: 0.8em;    /* Small caption */
+            color: #6c6464;       /* Matched your other caption color */
+            margin: 0 2px 5px 2px; /* Top, horizontal, bottom margins */
+        }
+
+        .scroll-gallery-item img {
+            height: 150px;       /* Set a fixed height for all images */
+            width: auto;         /* Width will adjust to maintain aspect ratio */
+            display: block;      /* Removes extra space under the image */
+        }
+        /* --- END OF NEW STYLES --- */
+        
     </style>
 </head>
 <body>
@@ -106,40 +133,193 @@
     </div>
 
     <h3>Training Progression</h3>
-    <div class="images">
-        <img src="web/part1/progression.png" alt="1.2">
-    </div>
-    
-    <h2>Part 2: FEATURE MATCHING for AUTOSTITCHING</h2>
+    <h4> Fox </h4>
+        <div class="horizontal-scroll-gallery">
+        <div class="scroll-gallery-item">
+            <p>iter 0</p>
+            <img src="web/part1/fox/recon_00000.png" alt="Image 1">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 100</p>
+            <img src="web/part1/fox/recon_00100.png" alt="Image 2">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 200</p>
+            <img src="web/part1/fox/recon_00200.png" alt="Image 3">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 400</p>
+            <img src="web/part1/fox/recon_00400.png" alt="Image 4">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 800</p>
+            <img src="web/part1/fox/recon_00800.png" alt="Image 5">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1000</p>
+            <img src="web/part1/fox/recon_01000.png" alt="Image 6">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1500</p>
+            <img src="web/part1/fox/recon_01500.png" alt="Image 7">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 2000</p>
+            <img src="web/part1/fox/recon_01999.png" alt="Image 7">
+        </div>
 
-    <h3>training progression</h3>
-    <div class="imagesTwo">
-        <img src="web/result/b.1_harris.png" alt="1.2">
-        <img src="web/result/b.1_ANMS.png" alt="1.2">
-    </div>
+        </div>
+         <div class="horizontal-scroll-gallery">
+        <div class="scroll-gallery-item">
+            <p>iter 0</p>
+            <img src="web/part1/squirel/recon_00000.png" alt="Image 1">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 100</p>
+            <img src="web/part1/squirel/recon_00100.png" alt="Image 2">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 200</p>
+            <img src="web/part1/squirel/recon_00200.png" alt="Image 3">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 400</p>
+            <img src="web/part1/squirel/recon_00400.png" alt="Image 4">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 800</p>
+            <img src="web/part1/squirel/recon_00800.png" alt="Image 5">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1000</p>
+            <img src="web/part1/squirel/recon_01000.png" alt="Image 6">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1500</p>
+            <img src="web/part1/squirel/recon_01500.png" alt="Image 7">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 2000</p>
+            <img src="web/part1/squirel/recon_01999.png" alt="Image 7">
+        </div>
+        </div>
 
-    <h3>training progression</h3>
-    <p> Once I had my set of corners, I extracted feature descriptors centered at each one. For each corner, I made sure that the 40×40 window is within the image bounds and then used cv2.resize to downsample each patch to an 8×8 descriptor. Each descriptor was also bias/gain normalized through subtracting its mean and dividing by its standard deviation. This normalization allows us to match across different images. I visualized some of these descriptors in 8×8 grayscale below. </p>
-    <div class="images">
-        <img src="web/result/b.2.png" alt="1.2">
-    </div>
+    <h3>FOX vs SQUIRREL PSNR</h3>
+        <div class="imagesTwo">
+            <img src="web/part1/fox/fox_psnr.png" alt="1.2">
+            <img src="web/part1/squirel/squirel_psnr.png" alt="1.2">
+        </div>
 
-    <h3>Final results</h3>
-    <p> max positional encoding frequency and 2 choices of width a 2x2 grid of results</p>
-    <div class="images">
-        <img src="web/result/b.3.png" alt="1.2">
-    </div>
+    <h3>hyperparameters</h3>
+    <p> From the 2x2 grid hyperparameter results I can see that:
+A low max positional encoding frequency (2) only provides the network with low-frequency information, resulting in an overly smooth and blurry image that lacks sharp detail. A higher L (8) provides the necessary high-frequency data, allowing the network to learn and represent fine details like fur texture.
+A low width (16) gives the network a small capacity, which gives lower-quality results as it struggles to store the scene's details. A larger width (128) provides a high-capacity network that can properly learn and store this complex information, leading to much sharper and clearer images.
+</p>
+        <div class="images">
+            <img src="web/part1/fox/hyperparameter.png" alt="1.2">
+        </div>
 
     <h2>Part 2: Fit a Neural Radiance Field from Multi-view Images</h2>
 
-    <h3>Visualization of rays and samples with cameras</h3>
-    <h3>PSNR curve on the validation set</h3>
+    <h3>Part 2.1: Create Rays from Cameras</h3>
+    <p> In my implementation, I generate rays using the intrinsic matrix K. For every pixel, I convert its coordinates into normalized camera space through my pixel_to_ray() function, making sure to add a 0.5 pixel-center offset so each ray originates from the pixel center instead of a corner. After normalizing by the focal lengths and principal point, I rotate each direction vector using c2w transform. The ray origin comes directly from the translation component of the pose, so all rays in a given image share the same origin. This makes sure that the rays I generate match the intrinsics and poses that I saved in my dataset.</p>
+
+    <h3>Part 2.2: Sampling</h3>
+    <p> To sample rays from images, I flatten all pixels from all images and use global sampling once to get rays from all images. For each sampled ray, I generate a set of points along the ray using stratified sampling between the near and far bounds. During training, I perturb these points within each interval to introduce randomness. Each sampled point along the ray is then converted to a 3D position using the ray’s origin and direction, and the corresponding RGB value is used as a target. These sample points are the 3D locations that the NeRF will evaluate. </p>
+    
+    <h3>Part 2.3: Putting the Dataloading All Together</h3>
+    <p> Similar to Part 1, I implement a dataloader that randomly samples pixels from multiview images. The key difference is that I convert the sampled pixel coordinates into rays inside the dataloader, returning the ray origins, directions, and corresponding RGB values. Specifically, my RaysData class wraps the images, camera poses, intrinsics from the .npz file. In sample_rays, I randomly select pixel coordinates from the training images, compute the corresponding 3D ray origins and directions using the camera intrinsics and extrinsics, and retrieve the pixel colors. I also added visualization of the cameras, rays, and sampled points to the viser to help me verify that the object lies within the ray bounds. </p>
+        <h4>Visualization of rays and samples with cameras</h4>
+        <div class="imagesTwo">
+            <img src="web/part2/rays2.png" alt="1.2">
+            <img src="web/part2/rays3.png" alt="1.2">
+        </div>
+
+    <h3>Part 2.4: Neural Radiance Field</h3>
+
+    <h4>Model architecture</h4>
+    <p> My NeRF model architecture follows the one provided in the instructions. I apply positional encoding to each sampled 3D point and ray direction, using L=10 for coordinates (yielding a 63-dimensional vector) and L=4 for directions (27 dimensions), then concatenate the encoded coordinates with the raw points and pass them through an 8-layer MLP of width 256 with ReLU activations. After the 4th layer, I re-inject the original PE to preserve high-frequency detail and stabilize training. The final feature vector branches into two heads: a density head that outputs σ via a Linear(1) layer with ReLU, and a color head that concatenates the 256-dimension feature with the encoded view direction and passes it through Linear(256), then two more layers of widths 128 and 3 with Sigmoid to predict RGB. </p>
+    <div class="images">
+        <img src="web/part2/2.4_arch.png" alt="1.2">
+    </div>
+
+    <h3>Part 2.5: Volume Rendering</h3>
+    <p> To implement volume rendering, my PyTorch function calculates the final color of a ray by first determining the contribution of each of its samples. For each of the 64 samples along a ray, I compute its alpha value, which is the probability of light being absorbed, using the formula α = 1 − exp(−σ * delta). Then, I calculate the transmittance, which is the probability of the ray reaching that sample, by applying torch.cumprod to the (1 - alpha) values of all preceding samples. The final weight for each sample  is then multiplied by its corresponding rgb value. Finally, I find the rendered color for the entire ray by taking the weighted sum (using torch.sum) of all 64 of these colored contributions.</p>
+    <h3>Training Progression</h3>
+     </div>
+         <div class="horizontal-scroll-gallery">
+        <div class="scroll-gallery-item">
+            <p>iter 0</p>
+            <img src="web/part2.5/0.png" alt="Image 1">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 100</p>
+            <img src="web/part2.5/100.png" alt="Image 2">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 200</p>
+            <img src="web/part2.5/200.png" alt="Image 3">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 300</p>
+            <img src="web/part2.5/300.png" alt="Image 4">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 800</p>
+            <img src="web/part2.5/800.png" alt="Image 5">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1000</p>
+            <img src="web/part2.5/1000.png" alt="Image 6">
+        </div>
+        </div>
+
+         <div class="images">
+        <img src="web/part2.5/training_curves.png" alt="1.2">
+        </div>
+
     <h3>Spherical rendering video of the Lego</h3>
     <div class="images">
-        <img src="web/2.5.novel_views.gif" alt="1.2">
+        <img src="web/part2.5/2.5.novel_views.gif" alt="1.2">
     </div>
 
     <h2>Part 2.6: Training with Your Own Data</h2>
+    <p> For Part 2.6, I trained a NeRF on my own dataset (from part 0) and captured a GIF of the camera circling the object to show the resulting novel views. During training, I checked the rays in viser to ensure that the chosen near and far bounds actually intersected the object, which helped me tune those values. I also experimented with reducing the network’s hidden dimension from 248 to 128, but this change had little impact on the final reconstruction quality. My final setup included plots of training loss over iterations and intermediate scene renders, and the hyperparameters that produced the best results were: --n_iters 1600 --batch_size 10000 --n_samples 64 --near 0.03 --far 0.6 --lr 5e-4.</p>
+
+    <div class="images">
+        <img src="web/part2.6/training_curves.png" alt="1.2">
+    </div>
+
+    <div class="images">
+        <img src="web/part2.6/2.6.gif" alt="1.2">
+    </div>
+    </div>
+         <div class="horizontal-scroll-gallery">
+        <div class="scroll-gallery-item">
+            <p>iter 0</p>
+            <img src="web/part2.6/0.png" alt="Image 1">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 400</p>
+            <img src="web/part2.6/400.png" alt="Image 2">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 800</p>
+            <img src="web/part2.6/800.png" alt="Image 3">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1200</p>
+            <img src="web/part2.6/1200.png" alt="Image 4">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 1600</p>
+            <img src="web/part2.6/1600.png" alt="Image 5">
+        </div>
+        <div class="scroll-gallery-item">
+            <p>iter 2000</p>
+            <img src="web/part2.6/2000.png" alt="Image 6">
+        </div>
+        </div>
     <hr>
 </body>
 </html>
