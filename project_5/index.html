@@ -80,6 +80,31 @@
             object-fit: cover;
             align-items: center;
         }
+                
+        .horizontal-scroll-gallery {
+            display: flex;       
+            overflow-x: auto;  
+            width: 100%;        
+        }
+        
+        .scroll-gallery-item {
+            flex: 0 0 auto;    
+            text-align: center; 
+            margin: 0;           
+            padding: 0;          
+        }
+
+        .scroll-gallery-item p {
+            font-size: 0.8em;    
+            color: #6c6464;       
+            margin: 0 2px 5px 2px; 
+        }
+
+        .scroll-gallery-item img {
+            height: 150px;       
+            width: auto;         
+            display: block;      
+        }
         
     </style>
 </head>
@@ -87,56 +112,106 @@
     <a href="../index.html">
         <button class="button">home</button>
     </a>
-    <h1>Project 4: Neural Radiance Field!</h1>
+    <h1>Project 5: Fun With Diffusion Models!</h1>
     <hr>
 
-    <h2>Part A: The Power of Diffusion Models!</h2>
-
-    <h3>Viser cloud of cameras</h3>
-    <div class="imagesTwo">
-        <img src="web/part0/part0.1.png" alt="1.1">
-        <img src="web/part0/part0.1.png" alt="2.2">
+    <h2>Part 0: Setup</h2>
+    <div class="images">
+        <img src="web_a/0.png" alt="1.1">
     </div>
 
-    <h2>Part 1: Fit a Neural Field to a 2D Image</h2>
-    <h3> Model architecture </h3>
-    <p> To create a blended image mosaic, I first computed the homography between the images using corresponding points and determined the full canvas size to fit all of them. I applied an offset to handle negative coordinates and warped the second image into the canvas while keeping the first image unwarped. For blending, I created masks for valid pixels in each image using weighted averaging. For overlapping pixels, I computed a weighted sum of their values divided by the sum of the weights, while non-overlapping pixels retained their original values. This allowed me to achieve a smoother transition between images. </p>
+    <h2>Part 1: Sampling Loops</h2>
+    <h3> 1.1 Implementing the Forward Process </h3>
     <div class="images">
-        <img src="web/result/a.4_mainstack.png" alt="1.3">
+        <img src="web_a/1.1.png" alt="1.3">
+    </div>
+    <h3> 1.2 Classical Denoising </h3>
+    <div class="images">
+        <img src="web_a/1.2.png" alt="1.3">
+    </div>
+    <h3> 1.3 One-Step Denoising </h3>
+    <div class="images">
+        <img src="web_a/1.3.1.png" alt="1.3">
+        <img src="web_a/1.3.2.png" alt="1.3">
+        <img src="web_a/1.3.3.png" alt="1.3">
+    </div>
+
+    <h3> 1.4 Iterative Denoising </h3>
+    <div class="horizontal-scroll-gallery">
+        <img src="web_a/1.4.1.png" alt="1.3">
+        <img src="web_a/1.4.2.png" alt="1.3">
+        <img src="web_a/1.4.3.png" alt="1.3">
+        <img src="web_a/1.4.4.png" alt="1.3">
+        <img src="web_a/1.4.5.png" alt="1.3">
+        <img src="web_a/1.4.6.png" alt="1.3">
+    </div>
+    
+    <h3> 1.5 Diffusion Model Sampling </h3>
+    <div class="images">
+        <img src="web_a/1.5.png" alt="1.5.1">
+    </div>
+
+    <h3> 1.6 Classifier-Free Guidance (CFG) </h3>
+    <div class="images">
+        <img src="web_a/1.6.png" alt="1.6.1">
+    </div>
+
+    <h3> 1.7 Image-to-image Translation </h3>
+    <div class="images">
+        <img src="web_a/1.7.0.img2img.png" alt="1.7.1">
+        <img src="web_a/1.7.0.img2img1.png" alt="1.7.1">
+        <img src="web_a/1.7.0.img2img2.png" alt="1.7.1">
+    </div>
+
+    <h3> 1.7.1 Editing Hand-Drawn and Web Images </h3>
+    <div class="horizontal-scroll-gallery">
+        <img src="web_a/1.7.1_handdrawn_ref1.png" alt="1.7.1">
+        <img src="web_a/1.7.1_handdrawn_ref1_result.png" alt="1.7.1">
+    </div>
+    <div class="horizontal-scroll-gallery">
+        <img src="web_a/1.7.1_handdrawn_ref2.png" alt="1.7.1">
+        <img src="web_a/1.7.1_handdrawn_ref2_result.png" alt="1.7.1">
+    </div>
+    <div class="images">
+        <img src="web_a/1.7.1_web.png" alt="1.7.1">
+    </div>
+
+    <h3> 1.7.2 Inpainting </h3>
+    <div class="images">
+        <img src="web_a/1.7.2.png" alt="1.7.2">
+        <img src="web_a/1.7.2.custom1.png" alt="1.7.2">
+        <img src="web_a/1.7.2.custom2.png" alt="1.7.2">
+    </div>
+
+    <h3> 1.7.3 Text-Conditional Image-to-image Translation </h3>
+    <div class="images">
+        <img src="web_a/1.7.3_cake.png" alt="1.7.2">
+        <img src="web_a/1.7.3_campnile.png" alt="1.7.2">
+        <img src="web_a/1.7.3_moon.png" alt="1.7.2">
+    </div>
+
+     <h3> 1.8 Visual Anagrams </h3>
+    <div class="images">
+        <img src="web_a/1.8_apple.png" alt="1.7.2">
+        <img src="web_a/1.8_dog_cat.png" alt="1.7.2">
+        <img src="web_a/1.8_sun_moon.png" alt="1.7.2">
+    </div>
+
+     <h3> 1.9 Hybrid Images </h3>
+    <div class="imagesTwo">
+        <img src="web_a/1.9.1.png" alt="1.7.2">
+        <img src="web_a/1.9.2.png" alt="1.7.2">
+        <img src="web_a/1.9.3.png" alt="1.7.2">
     </div>
 
     <h3>Model architecture </h3>
     
-    <h2>Part 2: FEATURE MATCHING for AUTOSTITCHING</h2>
+    <h2>Part 1: Training a Single-Step Denoising UNet</h2>
 
-    <h3>training progression</h3>
-    <div class="imagesTwo">
-        <img src="web/result/b.1_harris.png" alt="1.2">
-        <img src="web/result/b.1_ANMS.png" alt="1.2">
-    </div>
-
-    <h3>training progression</h3>
-    <p> Once I had my set of corners, I extracted feature descriptors centered at each one. For each corner, I made sure that the 40×40 window is within the image bounds and then used cv2.resize to downsample each patch to an 8×8 descriptor. Each descriptor was also bias/gain normalized through subtracting its mean and dividing by its standard deviation. This normalization allows us to match across different images. I visualized some of these descriptors in 8×8 grayscale below. </p>
-    <div class="images">
-        <img src="web/result/b.2.png" alt="1.2">
-    </div>
-
-    <h3>Final results</h3>
-    <p> max positional encoding frequency and 2 choices of width a 2x2 grid of results</p>
-    <div class="images">
-        <img src="web/result/b.3.png" alt="1.2">
-    </div>
-
-    <h2>Part 2: Fit a Neural Radiance Field from Multi-view Images</h2>
-
-    <h3>Visualization of rays and samples with cameras</h3>
-    <h3>PSNR curve on the validation set</h3>
-    <h3>Spherical rendering video of the Lego</h3>
     <div class="images">
         <img src="web/2.5.novel_views.gif" alt="1.2">
     </div>
 
-    <h2>Part 2.6: Training with Your Own Data</h2>
     <hr>
 </body>
 </html>
