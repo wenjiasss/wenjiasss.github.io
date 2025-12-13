@@ -2,6 +2,7 @@
 <head>
     <title>Project 5 </title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -80,11 +81,25 @@
             object-fit: cover;
             align-items: center;
         }
+
+        .image-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-row img {
+            width: 13%;
+            height: auto;
+            object-fit: cover;
+            flex:auto
+        }
                 
         .horizontal-scroll-gallery {
             display: flex;       
             overflow-x: auto;  
-            width: 100%;        
+            width: 100%;   
         }
         
         .scroll-gallery-item {
@@ -116,7 +131,7 @@
     <hr>
 
     <h2>Part 0: Setup</h2>
-    <p> Below are the prompts I came up with for the diffusion model:
+    <p> Below are the prompts I came up with for the Deepfloyd diffusion model:
         a high quality picture
         an oil painting of UC Berkeley's campanile
         a photo of the golden gate bridge 
@@ -135,21 +150,41 @@
     <div class="images">
         <img src="web_a/0.png" alt="1.1">
     </div>
-    <p> Then I tried changing the num_inferences to 100 and got the results below. It seems that increasing the num_inferences makes the images follow more of the prompt, as the octopus is actually making coffee instead of holding it.  </p>
+
+    <p> Changing the num_references to 50:</p>
+    <div class="images">
+        <img src="web_a/0.2.png" alt="1.1">
+    </div>
+
+    <p>Then I tried changing the num_inferences to 100 and got the results below. It seems that increasing the num_inferences makes the images follow more of the prompt, as the octopus is actually making coffee instead of holding it. However it also seems that the images are more "weird" as the colors areoveraturated and the octopus is simplified.</p>
     <div class="images">
         <img src="web_a/0.1.png" alt="1.1">
     </div>
 
     <h2>Part 1: Sampling Loops</h2>
     <h3> 1.1 Implementing the Forward Process </h3>
+    <p>
+        I implemented the forward diffusion process using the formula:
+        $$ x_t = \sqrt{\bar\alpha_t} x_0 + \sqrt{1 - \bar\alpha_t}\,\epsilon $$
+        with \(\bar\alpha_t\) drawn from <code>stage_1.scheduler.alphas_cumprod</code>. Applying this function to the Campanile image at \(t = 250, 500, 750\) produced progressively noisier examples that aligned with the expected degradation profile.
+    </p>
     <div class="images">
         <img src="web_a/1.1.png" alt="1.3">
     </div>
+
     <h3> 1.2 Classical Denoising </h3>
+    <p>
+        I used Gaussian blur as a baseline denoiser, applying kernel sizes of 5, 7, and 11 for timesteps 250, 500, and 750 respectively. While the blur reduced coarse noise, it failed to recover fine structural detail and demonstrated the limitations of classical restoration approaches under high noise.
+    </p>
     <div class="images">
         <img src="web_a/1.2.png" alt="1.3">
     </div>
     <h3> 1.3 One-Step Denoising </h3>
+    <p>
+        I performed one-step denoising using the Stage I DeepFloyd UNet by predicting \(\epsilon_\theta(x_t, t)\) and computing \(\hat{x}_0\) via:
+        $$ \hat{x}_0 = \frac{x_t - \sqrt{1-\bar\alpha_t}\epsilon_\theta}{\sqrt{\bar\alpha_t}} $$
+        The method recovered global structure effectively at low noise levels but produced grainy outputs for larger \(t\), reflecting the challenges of reversing diffusion in a single step.
+    </p>
     <div class="images">
         <img src="web_a/1.3.1.png" alt="1.3">
         <img src="web_a/1.3.2.png" alt="1.3">
@@ -157,7 +192,10 @@
     </div>
 
     <h3> 1.4 Iterative Denoising </h3>
-    <div class="horizontal-scroll-gallery">
+    <p>
+        I implemented a full reverse-diffusion loop using strided timesteps from 990 down to 0 with stride 30, computing posterior means and adding learned variance at each iteration. This iterative approach substantially improved reconstruction quality relative to one-step denoising, producing smoother textures and more stable geometry.
+    </p>
+    <div class="image-row">
         <img src="web_a/1.4.1.png" alt="1.3">
         <img src="web_a/1.4.2.png" alt="1.3">
         <img src="web_a/1.4.3.png" alt="1.3">
@@ -165,21 +203,33 @@
         <img src="web_a/1.4.5.png" alt="1.3">
         <img src="web_a/1.4.6.png" alt="1.3">
     </div>
+
     <div class="images">
         <img src="web_a/1.4.7.png" alt="1.3">
     </div>
     
     <h3> 1.5 Diffusion Model Sampling </h3>
+    <p>
+        Using iterative denoising from pure Gaussian noise, I generated unconditional samples conditioned only on the empty prompt embedding. The outputs encoded generic photographic structure but lacked strong semantic specificity, illustrating the model’s reliance on text conditioning for detailed synthesis.
+    </p>
     <div class="images">
         <img src="web_a/1.5.png" alt="1.5.1">
     </div>
 
     <h3> 1.6 Classifier-Free Guidance (CFG) </h3>
+    <p>
+        I incorporated CFG by computing both conditional and unconditional noise predictions and combining them as:
+        $$ \epsilon_{final} = \epsilon_u + \gamma (\epsilon_c - \epsilon_u) $$
+        with \(\gamma = 7\). Introducing CFG meaningfully strengthened semantic alignment and sharpness across the sampling trajectory and served as the standard mechanism for all downstream generative and editing tasks.
+    </p>
     <div class="images">
         <img src="web_a/1.6.png" alt="1.6.1">
     </div>
 
     <h3> 1.7 Image-to-image Translation </h3>
+    <p>
+        I implemented SDEdit by adding forward noise to a clean image up to a chosen starting index \(i_{start}\) and then applying guided iterative denoising from that timestep. Experiments across indices \([1, 3, 5, 7, 10, 20]\) showed a controlled transition from light stylistic modification to substantial reinterpretation, and this behavior generalized consistently across photographs and hand-drawn sketches.
+    </p>
     <div class="images">
         <img src="web_a/1.7.0.img2img.png" alt="1.7.1">
         <img src="web_a/1.7.0.img2img1.png" alt="1.7.1">
@@ -187,19 +237,22 @@
     </div>
 
     <h3> 1.7.1 Editing Hand-Drawn and Web Images </h3>
-    <div class="horizontal-scroll-gallery">
-        <img src="web_a/1.7.1_handdrawn_ref1.png" alt="1.7.1">
+    <p> Handdrawn:</p>
+    <div class="images">
         <img src="web_a/1.7.1_handdrawn_ref1_result.png" alt="1.7.1">
     </div>
-    <div class="horizontal-scroll-gallery">
-        <img src="web_a/1.7.1_handdrawn_ref2.png" alt="1.7.1">
+    <div class="images">
         <img src="web_a/1.7.1_handdrawn_ref2_result.png" alt="1.7.1">
     </div>
+    <p> Web Image:</p>
     <div class="images">
         <img src="web_a/1.7.1_web.png" alt="1.7.1">
     </div>
 
     <h3> 1.7.2 Inpainting </h3>
+    <p>
+        I implemented inpainting by adding a mask into the diffusion loop and re-injecting noised ground-truth pixels outside the masked region after each denoising step. This approach enabled edits such as replacing the Campanile with a ballon
+    </p>
     <div class="images">
         <img src="web_a/1.7.2.png" alt="1.7.2">
         <img src="web_a/1.7.2.custom1.png" alt="1.7.2">
@@ -207,6 +260,8 @@
     </div>
 
     <h3> 1.7.3 Text-Conditional Image-to-image Translation </h3>
+    <p>
+        I extended the SDEdit pipeline by swapping the prompt embedding to steer the reconstruction towards another. 
     <div class="images">
         <p> From "a photo of half eaten apple" to the campanile</p>
         <img src="web_a/1.7.3_campnile.png" alt="1.7.2">
@@ -217,6 +272,9 @@
     </div>
 
      <h3> 1.8 Visual Anagrams </h3>
+    <p>
+        I created visual anagrams by averaging noise estimates from two distinct prompts—one applied to the upright image, and the other applied to its 180°-rotated counterpart, flipped back before combining. This yielded hybrid outputs that resemble one prompt in the upright orientation and a different prompt when rotated.
+    </p>
     <div class="images">
         <p> "a photo of half eaten apple" and "a photo of a couple facing each other"</p>
         <img src="web_a/1.8_apple.png" alt="1.7.2">
@@ -225,6 +283,10 @@
     </div>
 
      <h3> 1.9 Hybrid Images </h3>
+     <p>
+        I generated hybrid images by decomposing each prompt’s noise estimate into low- and high-frequency components using Gaussian low-pass filtering and recombining them as:
+        $$ \epsilon_{final} = \epsilon_{low} + \epsilon_{high} $$
+    </p>
     <div class="imagesTwo">
         <p> "a cute dog" and "a cute cat"</p>
         <img src="web_a/1.9.1.png" alt="1.7.2">
@@ -237,27 +299,35 @@
     <h3> Part 1: Training a Single-Step Denoising UNet</h3>
     
     <h3> 1.1  Implementing the UNet </h3>
-    <p> I implemented the denoiser as a UNet following the architecture below:</p>
+    <p>  I implemented a UNet with downsampling and upsampling blocks, skip connections, and standard operations (Conv2d, ConvTranspose2d, AvgPool2d, BatchNorm, GELU). The hidden channel dimension was set to D = 128. All operations follow the architecture below:</p>
     <div class="images">
         <img src="web_b/1.1.1.png" alt="1.2">
         <img src="web_b/1.1.2.png" alt="1.2">
     </div>
 
     <h3> 1.2 Using the UNet to Train a Denoiser </h3>
+    <p> Here is a visualization of the different noising processes over various σ: </p>
     <div class="images">
         <img src="web_b/1.2.0.png" alt="1.2">
     </div>
 
     <h3> 1.2.1 Training</h3>
+    <p>
+        I trained the UNet as a single-step denoiser on the MNIST dataset, where the objective is to recover a clean image \(x\) from a noisy observation \(z = x + \sigma \varepsilon\). During training, the model learns to directly predict the clean image given the noisy input. I trained for five epochs with a batch size of 256, a hidden dimension of 128, and the Adam optimizer using a learning rate of \(10^{-4}\). The visualization demonstrates that the denoising performance improves steadily over training. By epoch 5, the model is able to generate coherent and recognizable digit structures.
+    </p>
     <div class="imagesTwo">
         <img src="web_b/1.2.1_1_epoch.png" alt="1.2">
         <img src="web_b/1.2.1_5_epoch.png" alt="1.2">
     </div>
+
     <div class="images">
         <img src="web_b/1.2.1_training_curve.png" alt="1.2">
     </div>
 
     <h3> 1.2.2 Out-of-Distribution Testing </h3>
+     <p> 
+        I applied Gaussian noise ranging from \(\sigma = 0.0\) to \(\sigma = 1.0\) to test images. The visualization demonstrates that the model performs reasonably well across a range of noise intensities it hasn’t seen before. Although as the noise increases to 1, reconstructions lose cleanliness but still maintain a recognizable form.
+    </p>
     <div class="images">
         <img src="web_b/1.2.2.png" alt="1.2">
         <img src="web_b/1.2.2.1.png" alt="1.2">
@@ -266,6 +336,12 @@
     </div>
 
     <h3> 1.2.3 Denoising Pure Noise </h3>
+      <p>
+        I trained the UNet to map pure Gaussian noise directly to clean MNIST images using the same architecture, optimizer, and hyperparameters as in the standard denoising setup. In this training, the input consists of random noise \(z \sim \mathcal{N}(0, \sigma^2)\) with \(\sigma = 0.5\), and the target is the corresponding clean digit image.
+    </p>
+    <p>
+        I repeated the training procedure from before for five epochs, replacing noisy images with pure Gaussian noise as input. Visualizations after one and five epochs show that the model fails to produce distinct digit shapes. Instead, the outputs resemble blurred averages of multiple digits. With an MSE loss, the model learns to predict the point that minimizes the sum of squared distances to all training samples. As a result, the model converges to the dataset’s average image, which reflects overlapping MNIST digit structures and produces the observed almost identical blurred image.
+    </p>
      <div class="imagesTwo">
         <img src="web_b/1.2.3_1_epoch.png" alt="1.2">
         <img src="web_b/1.2.3_5_epoch.png" alt="1.2">
@@ -277,13 +353,13 @@
     <h3> Part 2: Training a Flow Matching Model</h3>
 
     <h3> 2.1 Adding Time Conditioning to UNet </h3>
-    <p> We need a way to inject scalar into our UNet model to condition it. We're predicting the flow from the noisy to clean, which will contain both parts of the original image as well as the noise to remove. This uses a new operator called FCBlock (fully-connected block) which we use to inject the conditioning signal into the UNet: </p>
     <div class="images">
         <img src="web_b/2.1.1.png" alt="1.2">
         <img src="web_b/2.1.2.png" alt="1.2">
     </div>
 
     <h3> 2.2 Training the UNet</h3>
+
     <div class="images">
         <img src="web_b/2.2_curve.png" alt="1.2">
     </div>
