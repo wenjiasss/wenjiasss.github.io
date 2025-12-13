@@ -353,36 +353,62 @@
     <h3> Part 2: Training a Flow Matching Model</h3>
 
     <h3> 2.1 Adding Time Conditioning to UNet </h3>
+    <p>
+        I extended the base UNet architecture with time conditioning by adding <code>FCBlock</code>. The resulting embeddings are used to multiplicatively modulate feature maps at the bottleneck and during upsampling, allowing the network to condition its activations on the current diffusion step rather than with a fixed UNet.
+    </p>
     <div class="images">
         <img src="web_b/2.1.1.png" alt="1.2">
         <img src="web_b/2.1.2.png" alt="1.2">
     </div>
 
     <h3> 2.2 Training the UNet</h3>
-
+    <p>
+        I trained the time-conditioned UNet using a flow matching objective on the MNIST dataset. Training was performed with a batch size of 64 and hidden dimension of 64, using the Adam optimizer with an initial learning rate of \(10^{-2}\). An exponential learning rate scheduler was applied with a decay factor chosen to reduce the learning rate smoothly over 10 epochs. The training loss was recorded at every iteration and visualized below.
+    </p>
     <div class="images">
+        <img src="web_b/2.2_algo.png" alt="1.2">
         <img src="web_b/2.2_curve.png" alt="1.2">
     </div>
 
     <h3> 2.3 Sampling from the UNet</h3>
+    <p>
+        I performed sampling from the trained model via the algorithm below. I generated samples using 1, 5, and 10 integration steps to illustrate the effect of iterative refinement. As the number of steps increased, the samples transitioned from noisy, indistinct blobs to progressively sharper and more recognizable digits, demonstrating its effectiveness.
+    </p>
     <div class="images">
+        <img src="web_b/2.3_algo.png" alt="1.2">
         <img src="web_b/2.3.1.png" alt="1.2">
         <img src="web_b/2.3.2.png" alt="1.2">
         <img src="web_b/2.3.3.png" alt="1.2">
     </div>
 
     <h3> 2.4 Adding Class-Conditioning to UNet</h3>
+    <p>
+        I extended the time-conditioned UNet with class conditioning on the target MNIST digit. Each MNIST digit label was encoded as a learned embedding and combined with the timestep embedding. This was applied through <code>FCBlock</code>s at several layers, enabling the model to adapt its denoising process over time while generating samples corresponding to a chosen digit class.
+    </p>
     <div class="images">
         <img src="web_b/2.4.png" alt="1.2">
     </div>
 
     <h3> 2.5 Training the UNet</h3>
+    <p>
+        I trained the class-conditioned UNet using the algorithm below. I trained the model for 10 epochs with a batch size of 64, hidden dimension 64, Adam optimization with exponential learning rate (\(1 \times 10^{-2}\)) decay, and number of time steps 300, setting the probability of dropping the class label for unconditional training to 0.1.
+    </p>
     <div class="images">
+        <img src="web_b/2.5_algo.png" alt="1.2">
         <img src="web_b/2.5.png" alt="1.2">
     </div>
 
     <h3> 2.6 Sampling from the UNet</h3>
-    <p> </p>
+    <p>
+        To generate samples, I utilized the algorithm below with classifier-free guidance to combine conditional and unconditional velocity predictions. Using a guidance scale of \(\gamma = 5.0\), the model interpolates between these predictions at each timestep to strongly bias the generation toward the specified digit class. The figures below display 4 instances of each digit class generated at Epochs 1, 5, and 10, showing the progression from initial noise to clear and class-consistent digits.
+    </p>
+    <div class="images">
+        <img src="web_b/2.6_algo.png" alt="1.2">
+    </div>
+
+    <p>
+        I also tried removing the exponential learning rate scheduler to simplify the training pipeline. To compensate for this removal, the learning rate was changed to \(1.0 \times 10^{-3}\).
+    </p>
     <div class="images">
         <img src="web_b/2.6.1_scheduler_1.png" alt="1.2">
         <img src="web_b/2.6.1_scheduler_2.png" alt="1.2">
